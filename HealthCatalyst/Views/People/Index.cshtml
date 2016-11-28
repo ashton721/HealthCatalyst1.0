@@ -1,0 +1,94 @@
+﻿<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+@Styles.Render("~/Content/css")
+@Scripts.Render("~/bundles/modernizr")
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+@{
+    ViewBag.Title = "IndexJson";
+    AjaxOptions options = new AjaxOptions
+    {
+        LoadingElementId = "divLoading",
+        OnBegin = "hideOutput",
+        OnSuccess = "processDataMethod",
+        Url = Url.Action("SearchPeopleJson")
+    };
+}
+
+<div class="container">
+            <script type="text/javascript">
+                /* hide output for cleaner loading screen*/
+                function hideOutput() {
+                    $('.people').hide()
+                };
+                /*display results of json action*/
+                function processDataMethod(data) {
+
+                    $('.people').show();
+                    //var output = $("#searchResult");
+                    $("#searchResult").html("");
+                    var output = [];
+                    //output.empty();
+                    if (data.length == 0) {
+                        output.push("<h3>Sorry, No Results Found.</h3>");
+                    }
+                    else {
+
+                        for (var i = 0; i < data.length ; i++) {
+                            if (i == 0) {
+                                output.push("<div class='row'>")
+                            }
+                            var person = data[i];
+                            output.push("<div class ='people col-md-3'>" + "<img  class='rounded mx-auto d-block responsive' src='/Content/Images/"
+                                + person.personImgPath + "'/>" + "<h3 class='directoryText'>"
+                             + person.firstName + " " + person.lastName + "</h3>" + "<table><tbody><tr><td>" +
+                             "<strong>Age: </strong></td><td> " + person.age + "</td></tr><tr><td><strong>Interests: </strong></td><td>"
+                             + person.interests + "</td></tr><tr><td><strong>Address: </strong></td><td>"
+                             + person.streetAddress + "</br>" + person.city + ", " + person.state + "  " + person.zip + "</td></tr></tbody></table></div><div class ='col-md-1'></div>")
+                            if ((i + 1) % 3 == 0) {
+                                output.push("</div><div class='row'>")
+                            }
+                            else if (i == (data.length - 1)) {
+                                output.push("</div></div>")
+                            };
+                        }
+                        $("#searchResult").html(output.join(''));
+                    }
+                    /*overcome the hideOutout() function */
+                    $('.people').show();
+                }
+            </script>
+        </div>
+        <h1>Search Directory</h1>
+        @using (Ajax.BeginForm(options))
+        {
+
+            <div>
+
+                <div class="input-group">
+                    @* Input for for JSON*@
+                    <input type="text" name="keyword" id="keyword" class="form-control">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default btn-attached" type="submit" id="btnSearch">Go!</button>
+                    </span>
+                </div>
+            </div>
+            <h2>Results</h2>
+            <div id="divLoading" class="container container-load">
+                <div class="banner">
+                    LOADING
+                    <div class="banner-left"></div>
+                    <div class="banner-right"></div>
+                </div>
+            </div>
+        }
+
+        @Scripts.Render("~/bundles/jqueryval")
+        <script>
+            $("#btnSearch").trigger("click");
+        </script>
+
+
+        <div id="searchResult" class="container"></div>
+
